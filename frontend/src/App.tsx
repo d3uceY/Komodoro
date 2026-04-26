@@ -1,6 +1,8 @@
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useState } from 'react';
+import TaskList from './components/TaskList';
+import { TaskProvider } from './context/TaskContext';
 
 
 function App() {
@@ -18,7 +20,7 @@ function App() {
 
 
   return (
-    <>
+    <TaskProvider>
       <div className="w-100 aspect-square border border-black rounded-full relative flex items-center justify-center">
         <div className="single-clock-hand h-full w-6 bg-black absolute">
           <div className="bg-red-600 w-full h-10 absolute top-0 left-0 right-0">
@@ -26,7 +28,8 @@ function App() {
           </div>
         </div>
       </div>
-    </>
+      <TaskList />
+    </TaskProvider>
   )
 }
 
