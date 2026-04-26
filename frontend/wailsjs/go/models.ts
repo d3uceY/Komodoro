@@ -1,6 +1,6 @@
 export namespace utils {
 	
-	export class Todo {
+	export class Task {
 	    id: string;
 	    title: string;
 	    status: string;
@@ -8,7 +8,7 @@ export namespace utils {
 	    createdAt: any;
 	
 	    static createFrom(source: any = {}) {
-	        return new Todo(source);
+	        return new Task(source);
 	    }
 	
 	    constructor(source: any = {}) {

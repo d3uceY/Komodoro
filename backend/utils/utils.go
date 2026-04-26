@@ -11,129 +11,128 @@ import (
 	"github.com/google/uuid"
 )
 
-type TodoStatus string
+type TaskStatus string
 
 const (
-	StatusActive TodoStatus = "active"
-	StatusDone   TodoStatus = "done"
+	StatusActive TaskStatus = "active"
+	StatusDone   TaskStatus = "done"
 )
 
-type Todo struct {
+type Task struct {
 	ID        string     `json:"id"`
 	Title     string     `json:"title"`
-	Status    TodoStatus `json:"status"`
+	Status    TaskStatus `json:"status"`
 	CreatedAt time.Time  `json:"createdAt"`
 }
 
-type TodoService struct {
+type TaskService struct {
 	filePath string
 }
 
-
-// NewTodoService creates a new TodoService with the file path set to the user's config directory.
-func NewTodoService() *TodoService {
+// NewTaskService creates a new TaskService with the file path set to the user's config directory.
+func NewTaskService() *TaskService {
 	configDir, _ := os.UserConfigDir()
-	dir := filepath.Join(configDir, "Komodoro", "todos")
-	return &TodoService{
-		filePath: filepath.Join(dir, "todos.json"),
+	dir := filepath.Join(configDir, "Komodoro", "tasks")
+	return &TaskService{
+		filePath: filepath.Join(dir, "tasks.json"),
 	}
 }
 
-// loadTodos reads the todos from the JSON file and returns them as a slice of Todo structs.
-func (s *TodoService) loadTodos() ([]Todo, error) {
+// loadTasks reads the tasks from the JSON file and returns them as a slice of Task structs.
+func (s *TaskService) loadTasks() ([]Task, error) {
 	data, err := os.ReadFile(s.filePath)
 	if errors.Is(err, os.ErrNotExist) {
-		return []Todo{}, nil
+		return []Task{}, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("could not read todos file: %w", err)
+		return nil, fmt.Errorf("could not read tasks file: %w", err)
 	}
-	var todos []Todo
-	if err := json.Unmarshal(data, &todos); err != nil {
-		return nil, fmt.Errorf("could not parse todos: %w", err)
+	var tasks []Task
+	if err := json.Unmarshal(data, &tasks); err != nil {
+		return nil, fmt.Errorf("could not parse tasks: %w", err)
 	}
-	return todos, nil
+	return tasks, nil
 }
 
-// saveTodos writes the given slice of Todo structs to the JSON file.
-func (s *TodoService) saveTodos(todos []Todo) error {
+// saveTasks writes the given slice of Task structs to the JSON file.
+func (s *TaskService) saveTasks(tasks []Task) error {
 	if err := os.MkdirAll(filepath.Dir(s.filePath), 0755); err != nil {
-		return fmt.Errorf("could not create todos directory: %w", err)
+		return fmt.Errorf("could not create tasks directory: %w", err)
 	}
-	data, err := json.MarshalIndent(todos, "", "  ")
+	data, err := json.MarshalIndent(tasks, "", "  ")
 	if err != nil {
-		return fmt.Errorf("could not serialize todos: %w", err)
+		return fmt.Errorf("could not serialize tasks: %w", err)
 	}
 	return os.WriteFile(s.filePath, data, 0644)
 }
 
-// AddTodo creates a new active todo with an auto-generated ID and appends it to todos.json.
-func (s *TodoService) AddTodo(title string) (Todo, error) {
-	todos, err := s.loadTodos()
+// AddTask creates a new active task with an auto-generated ID and appends it to tasks.json.
+func (s *TaskService) AddTask(title string) (Task, error) {
+	tasks, err := s.loadTasks()
 	if err != nil {
-		return Todo{}, err
+		return Task{}, err
 	}
-	todo := Todo{
+	task := Task{
 		ID:        uuid.New().String(),
 		Title:     title,
 		Status:    StatusActive,
 		CreatedAt: time.Now(),
 	}
-	todos = append(todos, todo)
-	return todo, s.saveTodos(todos)
+	tasks = append(tasks, task)
+	return task, s.saveTasks(tasks)
 }
 
-// DeleteAllTasks removes every task from todos.json.
-func (s *TodoService) DeleteAllTasks() error {
-	return s.saveTodos([]Todo{})
+// DeleteAllTasks removes every task from tasks.json.
+func (s *TaskService) DeleteAllTasks() error {
+	return s.saveTasks([]Task{})
 }
 
-// DeleteTaskByID removes the task with the given ID from todos.json.
-func (s *TodoService) DeleteTaskByID(id string) error {
-	todos, err := s.loadTodos()
+// DeleteTaskByID removes the task with the given ID from tasks.json.
+func (s *TaskService) DeleteTaskByID(id string) error {
+	tasks, err := s.loadTasks()
 	if err != nil {
 		return err
 	}
-	filtered := make([]Todo, 0, len(todos))
-	for _, t := range todos {
+	filtered := make([]Task, 0, len(tasks))
+	for _, t := range tasks {
 		if t.ID != id {
 			filtered = append(filtered, t)
 		}
 	}
-	return s.saveTodos(filtered)
+	return s.saveTasks(filtered)
 }
 
-// GetTodos returns all todos from todos.json.
-func (s *TodoService) GetTodos() ([]Todo, error) {
-	return s.loadTodos()
+// GetTasks returns all tasks from tasks.json.
+func (s *TaskService) GetTasks() ([]Task, error) {
+	return s.loadTasks()
 }
 
 // SetTaskStatus sets the status of a task to either "active" or "done".
-func (s *TodoService) SetTaskStatus(id string, status TodoStatus) error {
-	todos, err := s.loadTodos()
+func (s *TaskService) SetTaskStatus(id string, status TaskStatus) error {
+	tasks, err := s.loadTasks()
 	if err != nil {
 		return err
 	}
-	for i, t := range todos {
+	for i, t := range tasks {
 		if t.ID == id {
-			todos[i].Status = status
-			return s.saveTodos(todos)
+			tasks[i].Status = status
+			return s.saveTasks(tasks)
 		}
 	}
 	return fmt.Errorf("task with id %q not found", id)
 }
 
 // ClearFinishedTasks removes all tasks whose status is "done".
-func (s *TodoService) ClearFinishedTasks() error {
-	todos, err := s.loadTodos()
+func (s *TaskService) ClearFinishedTasks() error {
+	tasks, err := s.loadTasks()
 	if err != nil {
 		return err
 	}
-	active := make([]Todo, 0, len(todos))
-	for _, t := range todos {
+	active := make([]Task, 0, len(tasks))
+	for _, t := range tasks {
 		if t.Status != StatusDone {
 			active = append(active, t)
 		}
 	}
-	return s.saveTodos(active)
+	return s.saveTasks(active)
 }

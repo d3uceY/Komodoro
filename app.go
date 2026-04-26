@@ -10,13 +10,13 @@ import (
 // App struct
 type App struct {
 	ctx context.Context
-	*utils.TodoService
+	*utils.TaskService
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{
-		TodoService: utils.NewTodoService(),
+		TaskService: utils.NewTaskService(),
 	}
 }
 
