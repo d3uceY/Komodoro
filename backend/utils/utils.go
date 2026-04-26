@@ -29,6 +29,8 @@ type TodoService struct {
 	filePath string
 }
 
+
+// NewTodoService creates a new TodoService with the file path set to the user's config directory.
 func NewTodoService() *TodoService {
 	configDir, _ := os.UserConfigDir()
 	dir := filepath.Join(configDir, "Komodoro", "todos")
@@ -37,6 +39,7 @@ func NewTodoService() *TodoService {
 	}
 }
 
+// loadTodos reads the todos from the JSON file and returns them as a slice of Todo structs.
 func (s *TodoService) loadTodos() ([]Todo, error) {
 	data, err := os.ReadFile(s.filePath)
 	if errors.Is(err, os.ErrNotExist) {
@@ -52,6 +55,7 @@ func (s *TodoService) loadTodos() ([]Todo, error) {
 	return todos, nil
 }
 
+// saveTodos writes the given slice of Todo structs to the JSON file.
 func (s *TodoService) saveTodos(todos []Todo) error {
 	if err := os.MkdirAll(filepath.Dir(s.filePath), 0755); err != nil {
 		return fmt.Errorf("could not create todos directory: %w", err)
