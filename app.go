@@ -3,16 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"Komodoro/backend/utils"
 )
 
 // App struct
 type App struct {
 	ctx context.Context
+	*utils.TodoService
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	return &App{
+		TodoService: utils.NewTodoService(),
+	}
 }
 
 // startup is called when the app starts. The context is saved
